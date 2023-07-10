@@ -96,7 +96,7 @@ Resources:
           - id: W92
             reason: "Ignoring Reserved Concurrency"
     Properties:
-      CodeUri: |-
+      InlineCode: |-
         from typing import Dict, Any
 
         from aws_lambda_powertools import Logger, Tracer, Metrics
