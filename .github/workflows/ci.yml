@@ -10,6 +10,9 @@ on:
 
 env:
   AWS_REGION: us-east-1
+  ASSUME_ROLE_ARN: arn:aws:iam::755484374681:role/gha-aws-sam-poc-setup-GitHubRole-1WDQV1UQXFZXS
+  CF_ROLE_ARN: arn:aws:iam::755484374681:role/gha-aws-sam-poc-setup-CloudFormationRole-1560XUE0TSI05
+  ARTIFACT_BUCKET: gha-aws-sam-poc-setup-artifactbucket-91tl2eltzuio
 
 permissions:
   id-token: write
@@ -25,10 +28,18 @@ jobs:
           use-installer: true
       - uses: aws-actions/configure-aws-credentials@5fd3084fc36e372ff1fff382a39b10d03659f355 # v2.2.0
         with:
-          role-to-assume: arn:aws:iam::755484374681:role/gha-aws-sam-poc-setup-GitHubRole-1WDQV1UQXFZXS
-          role-session-name: gha
+          role-to-assume: ${{ env.ASSUME_ROLE_ARN }}
+          role-session-name: ci
           aws-region: ${{ env.AWS_REGION }}
       # Build inside Docker containers
-      - run: sam build --use-container
+      - run: sam build --use-container --cached --parallel
       # Prevent prompts and failure when the stack is unchanged
-      - run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset
+      - run: |
+          sam deploy \
+            --no-progressbar \
+            --no-confirm-changeset \
+            --on-failure DELETE \
+            --no-fail-on-empty-changeset \
+            --s3-bucket ${{ env.ARTIFACT_BUCKET }} \
+            --s3-prefix ${{ env.GITHUB_REPOSITORY }} \
+            --role-arn ${{ env.CF_ROLE_ARN }}

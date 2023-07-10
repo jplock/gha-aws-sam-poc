@@ -3,7 +3,7 @@
 
 ---
 AWSTemplateFormatVersion: "2010-09-09"
-Description: GitHub Actions AWS SAM POC Setup
+Description: GitHub Actions AWS SAM POC - Setup
 
 Resources:
   CloudFormationRole:
@@ -120,6 +120,18 @@ Resources:
                   - "cloudformation:ValidateTemplate"
                   - "cloudformation:EstimateTemplateCost"
                 Resource: "*"
+              - Effect: Allow
+                Action:
+                  - "s3:GetObject"
+                  - "s3:GetObjectVersion"
+                  - "s3:PutObject"
+                Resource: !Sub "${ArtifactBucket.Arn}/*"
+              - Effect: Allow
+                Action:
+                  - "s3:ListBucket"
+                  - "s3:GetBucketPolicy"
+                  - "s3:GetBucketLocation"
+                Resource: !GetAtt ArtifactBucket.Arn
 
   GitHubProvider:
     Type: "AWS::IAM::OIDCProvider"
@@ -139,7 +151,57 @@ Resources:
         - "6938fd4d98bab03faadb97b34396831e3780aea1"
       Url: https://token.actions.githubusercontent.com
 
+  ArtifactBucket:
+    Type: "AWS::S3::Bucket"
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      LifecycleConfiguration:
+        Rules:
+          - ExpirationInDays: 30
+            Id: RetentionRule
+            Status: Enabled
+      NotificationConfiguration:
+        EventBridgeConfiguration:
+          EventBridgeEnabled: true
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerEnforced
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+
+  ArtifactBucketPolicy:
+    Type: "AWS::S3::BucketPolicy"
+    Properties:
+      Bucket: !Ref ArtifactBucket
+      PolicyDocument:
+        Statement:
+          - Effect: Deny
+            Principal: "*"
+            Action: "s3:*"
+            Resource:
+              - !Sub "${ArtifactBucket.Arn}/*"
+              - !GetAtt ArtifactBucket.Arn
+            Condition:
+              Bool:
+                "aws:SecureTransport": false
+
 Outputs:
+  CloudFormationRoleArn:
+    Description: CloudFormation IAM Role ARN
+    Value: !GetAtt CloudFormationRole.Arn
   GitHubRoleArn:
     Description: GitHub Actions IAM Role ARN
     Value: !GetAtt GitHubRole.Arn
+  ArtifactBucket:
+    Description: Artifact Bucket Name
+    Value: !Ref ArtifactBucket
