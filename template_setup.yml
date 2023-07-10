@@ -87,7 +87,7 @@ Resources:
                 Resource: !GetAtt CloudFormationRole.Arn
                 Condition:
                   StringEquals:
-                    "aws:ResourceAccount": "${!aws:PrincipalAccount}"
+                    "aws:ResourceAccount": "${aws:PrincipalAccount}"
                     "iam:PassedToService": !Sub "cloudformation.${AWS::URLSuffix}"
               - Effect: Allow
                 Action:
@@ -97,7 +97,7 @@ Resources:
                   - "cloudformation:DeleteStack"
                   - "cloudformation:RollbackStack"
                   - "cloudformation:UpdateStack"
-                Resource: !Sub "arn:${AWS::Partition}:cloudformation:*:*:stack/app/*"
+                Resource: !Sub "arn:${AWS::Partition}:cloudformation:*:${AWS::AccountId}:stack/app-*"
                 Condition:
                   ArnLike:
                     "cloudformation:RoleArn": !GetAtt CloudFormationRole.Arn
@@ -113,7 +113,7 @@ Resources:
                   - "cloudformation:TagResource"
                   - "cloudformation:UntagResource"
                   - "cloudformation:UpdateTerminationProtection"
-                Resource: !Sub "arn:${AWS::Partition}:cloudformation:*:*:stack/app/*"
+                Resource: !Sub "arn:${AWS::Partition}:cloudformation:*:${AWS::AccountId}:stack/app-*"
               - Effect: Allow
                 Action:
                   - "cloudformation:CreateUploadBucket"

@@ -59,6 +59,7 @@ Resources:
             Service: !Sub "lambda.${AWS::URLSuffix}"
           Action: "sts:AssumeRole"
       Description: !Sub "DO NOT DELETE - Used by Lambda. Created by CloudFormation ${AWS::StackId}"
+      Path: "/app/"
       ManagedPolicyArns:
         - !Sub "arn:${AWS::Partition}:iam::aws:policy/AWSXRayDaemonWriteAccess"
       Tags:

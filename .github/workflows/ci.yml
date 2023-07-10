@@ -45,4 +45,4 @@ jobs:
             --s3-bucket ${{ env.ARTIFACT_BUCKET }} \
             --s3-prefix ${{ github.repository }} \
             --role-arn ${{ env.CF_ROLE_ARN }} \
-            --stack-name "arn:aws:cloudformation:us-east-1:755484374681:stack/app/${{ github.repository }}"
+            --stack-name "app-gha-aws-sam-poc"
