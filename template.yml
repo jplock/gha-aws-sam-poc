@@ -1,0 +1,120 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+
+---
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: "AWS::Serverless-2016-10-31"
+Description: GitHub Actions AWS SAM POC
+
+Globals:
+  Function:
+    Architectures:
+      - arm64
+    Environment:
+      Variables:
+        LOG_LEVEL: info
+    Handler: index.handler
+    Layers:
+      - !FindInMap [RegionMap, !Ref "AWS::Region", PowertoolsArn]
+    MemorySize: 128 # megabytes
+    Runtime: python3.10
+    Timeout: 5 # seconds
+    Tracing: Active
+
+Mappings:
+  RegionMap:
+    "us-east-1":
+      # @see https://docs.powertools.aws.dev/lambda/python/latest/#lambda-layer
+      PowertoolsArn: "arn:aws:lambda:us-east-1:017000801446:layer:AWSLambdaPowertoolsPythonV2-Arm64:37"
+
+Resources:
+  FunctionLogGroup:
+    Type: "AWS::Logs::LogGroup"
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W84
+            reason: "Ignoring KMS key"
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${Function}"
+      RetentionInDays: 3
+      Tags:
+        - Key: "aws-cloudformation:stack-name"
+          Value: !Ref "AWS::StackName"
+        - Key: "aws-cloudformation:stack-id"
+          Value: !Ref "AWS::StackId"
+        - Key: "aws-cloudformation:logical-id"
+          Value: FunctionLogGroup
+
+  FunctionRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          Effect: Allow
+          Principal:
+            Service: !Sub "lambda.${AWS::URLSuffix}"
+          Action: "sts:AssumeRole"
+      Description: !Sub "DO NOT DELETE - Used by Lambda. Created by CloudFormation ${AWS::StackId}"
+      ManagedPolicyArns:
+        - !Sub "arn:${AWS::Partition}:iam::aws:policy/AWSXRayDaemonWriteAccess"
+      Tags:
+        - Key: "aws-cloudformation:stack-name"
+          Value: !Ref "AWS::StackName"
+        - Key: "aws-cloudformation:stack-id"
+          Value: !Ref "AWS::StackId"
+        - Key: "aws-cloudformation:logical-id"
+          Value: FunctionRole
+
+  CloudWatchLogsPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: CloudWatchLogs
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - "logs:CreateLogStream"
+              - "logs:PutLogEvents"
+            Resource: !GetAtt FunctionLogGroup.Arn
+      Roles:
+        - !Ref FunctionRole
+
+  Function:
+    Type: "AWS::Serverless::Function"
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W58
+            reason: "Ignoring CloudWatch"
+          - id: W89
+            reason: "Ignoring VPC"
+          - id: W92
+            reason: "Ignoring Reserved Concurrency"
+    Properties:
+      CodeUri: |-
+        from typing import Dict, Any
+
+        from aws_lambda_powertools import Logger, Tracer, Metrics
+        from aws_lambda_powertools.utilities.typing import LambdaContext
+
+        tracer = Tracer()
+        metrics = Metrics()
+        logger = Logger(use_rfc3339=True, utc=True)
+
+        @tracer.capture_lambda_handler(capture_response=False)
+        @metrics.log_metrics(capture_cold_start_metric=True)
+        @logger.inject_lambda_context(log_event=True)
+        def handler(event: Dict[str, Any], context: LambdaContext) -> None:
+          return "hello world"
+
+      Description: !Sub "${AWS::StackName} Demo Function"
+      Environment:
+        Variables:
+          POWERTOOLS_SERVICE_NAME: demo
+          POWERTOOLS_METRICS_NAMESPACE: GitHubActionsPOC
+      Role: !GetAtt FunctionRole.Arn
