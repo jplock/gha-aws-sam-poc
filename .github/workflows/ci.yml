@@ -42,7 +42,6 @@ jobs:
             --no-confirm-changeset \
             --on-failure DELETE \
             --no-fail-on-empty-changeset \
-            --disable-rollback \
             --s3-bucket ${{ env.ARTIFACT_BUCKET }} \
             --s3-prefix ${{ github.repository }} \
             --role-arn ${{ env.CF_ROLE_ARN }} \
