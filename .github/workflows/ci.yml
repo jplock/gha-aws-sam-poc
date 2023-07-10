@@ -45,5 +45,5 @@ jobs:
             --s3-bucket ${{ env.ARTIFACT_BUCKET }} \
             --s3-prefix ${{ github.repository }} \
             --role-arn ${{ env.CF_ROLE_ARN }} \
-            --capabilities "CAPABILITY_IAM CAPABILITY_AUTO_EXPAND" \
+            --capabilities CAPABILITY_IAM,CAPABILITY_AUTO_EXPAND \
             --stack-name "app-gha-aws-sam-poc"
