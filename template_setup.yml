@@ -16,9 +16,9 @@ Resources:
           Principal:
             Service: !Sub "cloudformation.${AWS::URLSuffix}"
           Action: "sts:AssumeRole"
-          Condition:
-            StringEquals:
-              "aws:SourceAccount": !Ref "AWS::AccountId"
+          #Condition:
+          #  StringEquals:
+          #    "aws:SourceAccount": !Ref "AWS::AccountId"
       Description: !Sub "DO NOT DELETE - Used by CloudFormation. Created by CloudFormation ${AWS::StackId}"
       ManagedPolicyArns:
         - !Sub "arn:${AWS::Partition}:iam::aws:policy/AdministratorAccess"
@@ -28,9 +28,13 @@ Resources:
     Type: "AWS::IAM::ManagedPolicy"
     Properties:
       Description: Permission boundary for developers
+      ManagedPolicyName: !Sub "${AWS::StackName}-PermissionsBoundary"
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
+          - Effect: Allow
+            Action: "cloudformation:CreateChangeSet"
+            Resource: !Sub "arn:${AWS::Partition}:cloudformation:*:aws:transform/Serverless-2016-10-31"
           - Sid: AllowModifyIamRolesWithBoundary
             Effect: Allow
             Action:
@@ -43,7 +47,7 @@ Resources:
             Resource: !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/app/*"
             Condition:
               ArnEquals:
-                "iam:PermissionsBoundary": !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:policy/PermissionsBoundary"
+                "iam:PermissionsBoundary": !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:policy/${AWS::StackName}-PermissionsBoundary"
           - Sid: AllowModifyIamRoles
             Effect: Allow
             Action:
@@ -77,6 +81,8 @@ Resources:
             StringLike:
               "token.actions.githubusercontent.com:sub": "repo:jplock/gha-aws-sam-poc:*"
       Description: !Sub "DO NOT DELETE - Used by GitHub Actions. Created by CloudFormation ${AWS::StackId}"
+      ManagedPolicyArns:
+        - !Sub "arn:${AWS::Partition}:iam::aws:policy/AWSCloudFormationReadOnlyAccess"
       Policies:
         - PolicyName: GitHubPolicy
           PolicyDocument:
@@ -117,7 +123,6 @@ Resources:
               - Effect: Allow
                 Action:
                   - "cloudformation:CreateUploadBucket"
-                  - "cloudformation:DescribeStacks"
                   - "cloudformation:ValidateTemplate"
                   - "cloudformation:EstimateTemplateCost"
                 Resource: "*"
@@ -206,3 +211,6 @@ Outputs:
   ArtifactBucket:
     Description: Artifact Bucket Name
     Value: !Ref ArtifactBucket
+  PermissionBoundaryPolicyArn:
+    Description: Permission Boundary IAM Policy ARN
+    Value: !Ref DeveloperBoundary
