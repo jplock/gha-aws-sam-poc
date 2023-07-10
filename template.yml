@@ -60,6 +60,7 @@ Resources:
           Action: "sts:AssumeRole"
       Description: !Sub "DO NOT DELETE - Used by Lambda. Created by CloudFormation ${AWS::StackId}"
       Path: "/app/"
+      PermissionsBoundary: "arn:aws:iam::755484374681:policy/gha-aws-sam-poc-setup-PermissionsBoundary"
       ManagedPolicyArns:
         - !Sub "arn:${AWS::Partition}:iam::aws:policy/AWSXRayDaemonWriteAccess"
       Tags:
