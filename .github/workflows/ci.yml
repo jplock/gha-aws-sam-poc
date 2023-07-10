@@ -32,6 +32,7 @@ jobs:
           role-to-assume: ${{ env.ASSUME_ROLE_ARN }}
           role-session-name: ci
           aws-region: ${{ env.AWS_REGION }}
+      - run: sam validate
       # Build inside Docker containers
       - run: sam build --use-container --cached --parallel
       # Prevent prompts and failure when the stack is unchanged
@@ -41,7 +42,8 @@ jobs:
             --no-confirm-changeset \
             --on-failure DELETE \
             --no-fail-on-empty-changeset \
+            --disable-rollback \
             --s3-bucket ${{ env.ARTIFACT_BUCKET }} \
             --s3-prefix ${{ github.repository }} \
             --role-arn ${{ env.CF_ROLE_ARN }} \
-            --stack-name gha_aws_sam_poc
+            --stack-name "arn:aws:cloudformation:us-east-1:755484374681:stack/app/${{ github.repository }}"
