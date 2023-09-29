@@ -10,9 +10,9 @@ on:
 
 env:
   AWS_REGION: us-east-1
-  ASSUME_ROLE_ARN: arn:aws:iam::755484374681:role/gha-aws-sam-poc-setup-GitHubRole-1WDQV1UQXFZXS
-  CF_ROLE_ARN: arn:aws:iam::755484374681:role/gha-aws-sam-poc-setup-CloudFormationRole-1560XUE0TSI05
-  ARTIFACT_BUCKET: gha-aws-sam-poc-setup-artifactbucket-91tl2eltzuio
+  ASSUME_ROLE_ARN: arn:aws:iam::755484374681:role/gha-aws-sam-poc-setup-GitHubRole-J9Y2IJ65LA3V
+  CF_ROLE_ARN: arn:aws:iam::755484374681:role/gha-aws-sam-poc-setup-CloudFormationRole-CUFB38BGURWL
+  ARTIFACT_BUCKET: gha-aws-sam-poc-setup-artifactbucket-1el1noa5v1odb
   SAM_CLI_TELEMETRY: "0"
 
 permissions:
