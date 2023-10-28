@@ -52,12 +52,6 @@ Resources:
       LogGroupName: !Sub "/aws/lambda/${Function}"
       RetentionInDays: 3
       Tags:
-        - Key: "aws-cloudformation:stack-name"
-          Value: !Ref "AWS::StackName"
-        - Key: "aws-cloudformation:stack-id"
-          Value: !Ref "AWS::StackId"
-        - Key: "aws-cloudformation:logical-id"
-          Value: FunctionLogGroup
         - Key: "github:org"
           Value: !Ref GitHubOrg
         - Key: "github:repo"
