@@ -20,7 +20,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Setup AWS SAM
@@ -50,10 +50,10 @@ jobs:
             ${{ runner.os }}-build-
             ${{ runner.os }}-
 
-      - name: Run SAM build
+      - name: Run sam build
         run: sam build --use-container --cached --parallel
 
-      - name: SAM deploy
+      - name: Run sam deploy
         run: |
           sam deploy \
             --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND \

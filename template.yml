@@ -20,14 +20,14 @@ Parameters:
 Globals:
   Function:
     Architectures:
-      - arm64
+      - x86_64 # GitHub Actions doesn't support ARM
     Environment:
       Variables:
         LOG_LEVEL: info
     Handler: lambda_handler.handler
     Layers:
       # @see https://docs.powertools.aws.dev/lambda/python/latest/#lambda-layer
-      - !Sub "arn:${AWS::Partition}:lambda:${AWS::Region}:017000801446:layer:AWSLambdaPowertoolsPythonV2-Arm64:46"
+      - !Sub "arn:${AWS::Partition}:lambda:${AWS::Region}:017000801446:layer:AWSLambdaPowertoolsPythonV2:46"
     MemorySize: 128 # megabytes
     Runtime: python3.11
     Tags:
