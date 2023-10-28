@@ -13,6 +13,9 @@ Parameters:
   GitHubRepo:
     Type: String
     Description: GitHub Repository
+  GitSHA:
+    Type: String
+    Description: Git SHA
 
 Globals:
   Function:
@@ -21,22 +24,18 @@ Globals:
     Environment:
       Variables:
         LOG_LEVEL: info
-    Handler: index.handler
+    Handler: lambda_handler.handler
     Layers:
-      - !FindInMap [RegionMap, !Ref "AWS::Region", PowertoolsArn]
+      # @see https://docs.powertools.aws.dev/lambda/python/latest/#lambda-layer
+      - !Sub "arn:${AWS::Partition}:lambda:${AWS::Region}:017000801446:layer:AWSLambdaPowertoolsPythonV2-Arm64:46"
     MemorySize: 128 # megabytes
-    Runtime: python3.10
+    Runtime: python3.11
     Tags:
       "github:org": !Ref GitHubOrg
       "github:repo": !Ref GitHubRepo
+      "git:sha": !Ref GitSHA
     Timeout: 5 # seconds
     Tracing: Active
-
-Mappings:
-  RegionMap:
-    "us-east-1":
-      # @see https://docs.powertools.aws.dev/lambda/python/latest/#lambda-layer
-      PowertoolsArn: "arn:aws:lambda:us-east-1:017000801446:layer:AWSLambdaPowertoolsPythonV2-Arm64:37"
 
 Resources:
   FunctionLogGroup:
@@ -106,22 +105,7 @@ Resources:
           - id: W92
             reason: "Ignoring Reserved Concurrency"
     Properties:
-      InlineCode: |-
-        from typing import Dict, Any
-
-        from aws_lambda_powertools import Logger, Tracer, Metrics
-        from aws_lambda_powertools.utilities.typing import LambdaContext
-
-        tracer = Tracer()
-        metrics = Metrics()
-        logger = Logger(use_rfc3339=True, utc=True)
-
-        @tracer.capture_lambda_handler(capture_response=False)
-        @metrics.log_metrics(capture_cold_start_metric=True)
-        @logger.inject_lambda_context(log_event=True)
-        def handler(event: Dict[str, Any], context: LambdaContext) -> None:
-          return "hello world"
-
+      CodeUri: src/sample
       Description: !Sub "${AWS::StackName} Demo Function"
       Environment:
         Variables:
