@@ -39,12 +39,19 @@ jobs:
         run: sam validate --lint
 
       - name: Cache SAM build
+        id: cache-sam-build
         uses: actions/cache@704facf57e6136b1bc63b828d79edcd491f0ee84 # v3
+        env:
+          cache-name: cache-sam-build
         with:
           path: .aws-sam
-          key: cache-sam-build
+          key: ${{ runner.os }}-build-${{ env.cache-name }}
+          restore-keys: |
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
 
-      - name: Run SAM build
+      - if: ${{ steps.cache-sam-build.outputs.cache-hit != 'true' }}
+        name: Run SAM build
         run: sam build --use-container --cached --parallel
 
       - name: SAM deploy
