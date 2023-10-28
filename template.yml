@@ -6,6 +6,14 @@ AWSTemplateFormatVersion: "2010-09-09"
 Transform: "AWS::Serverless-2016-10-31"
 Description: GitHub Actions AWS SAM POC
 
+Parameters:
+  GitHubOrg:
+    Type: String
+    Description: GitHub Organization
+  GitHubRepo:
+    Type: String
+    Description: GitHub Repository
+
 Globals:
   Function:
     Architectures:
@@ -18,6 +26,9 @@ Globals:
       - !FindInMap [RegionMap, !Ref "AWS::Region", PowertoolsArn]
     MemorySize: 128 # megabytes
     Runtime: python3.10
+    Tags:
+      "github:org": !Ref GitHubOrg
+      "github:repo": !Ref GitHubRepo
     Timeout: 5 # seconds
     Tracing: Active
 
@@ -47,6 +58,10 @@ Resources:
           Value: !Ref "AWS::StackId"
         - Key: "aws-cloudformation:logical-id"
           Value: FunctionLogGroup
+        - Key: "github:org"
+          Value: !Ref GitHubOrg
+        - Key: "github:repo"
+          Value: !Ref GitHubRepo
 
   FunctionRole:
     Type: "AWS::IAM::Role"
@@ -70,6 +85,10 @@ Resources:
           Value: !Ref "AWS::StackId"
         - Key: "aws-cloudformation:logical-id"
           Value: FunctionRole
+        - Key: "github:org"
+          Value: !Ref GitHubOrg
+        - Key: "github:repo"
+          Value: !Ref GitHubRepo
 
   CloudWatchLogsPolicy:
     Type: "AWS::IAM::Policy"

@@ -36,30 +36,33 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Validate template
-        run: sam validate
+        run: sam validate --lint
 
       - name: Cache SAM build
         id: cache-sam-build
         uses: actions/cache@704facf57e6136b1bc63b828d79edcd491f0ee84 # v3
         with:
           path: .aws-sam
-          key: ${{ github.sha }}-sam-cache
+          key: cache-sam-build-${{ github.sha }}
 
-      # Build inside Docker containers
       - name: Run SAM build
         if: steps.cache-sam-build.outputs.cache-hit != 'true'
         run: sam build --use-container --cached --parallel
 
-      # Prevent prompts and failure when the stack is unchanged
       - name: SAM deploy
         run: |
           sam deploy \
-            --no-progressbar \
+            --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND \
             --no-confirm-changeset \
             --on-failure DELETE \
             --no-fail-on-empty-changeset \
+            --no-progressbar \
+            --parameter-overrides "GitHubOrg=${{ github.repository_owner }},GithubRepo=${{ github.repository }}" \
+            --role-arn ${{ vars.CF_ROLE_ARN }} \
+            --stack-name "app-gha-aws-sam-poc" \
             --s3-bucket ${{ vars.ARTIFACT_BUCKET }} \
             --s3-prefix ${{ github.repository }} \
-            --role-arn ${{ vars.CF_ROLE_ARN }} \
-            --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND \
-            --stack-name "app-gha-aws-sam-poc"
+            --tags \
+              github:org=${{ github.repository_owner }} \
+              github:repo=${{ github.repository }} \
+              git:sha=${{ github.sha }}
