@@ -10,9 +10,6 @@ on:
 
 env:
   AWS_REGION: us-east-1
-  ASSUME_ROLE_ARN: arn:aws:iam::755484374681:role/gha-aws-sam-poc-setup-GitHubRole-J9Y2IJ65LA3V
-  CF_ROLE_ARN: arn:aws:iam::755484374681:role/gha-aws-sam-poc-setup-CloudFormationRole-CUFB38BGURWL
-  ARTIFACT_BUCKET: gha-aws-sam-poc-setup-artifactbucket-1el1noa5v1odb
   SAM_CLI_TELEMETRY: "0"
 
 permissions:
@@ -29,7 +26,7 @@ jobs:
           use-installer: true
       - uses: aws-actions/configure-aws-credentials@010d0da01d0b5a38af31e9c3470dbfdabdecca3a # v4.0.1
         with:
-          role-to-assume: ${{ env.ASSUME_ROLE_ARN }}
+          role-to-assume: ${{ vars.ASSUME_ROLE_ARN }}
           role-session-name: ci
           aws-region: ${{ env.AWS_REGION }}
       - run: sam validate
@@ -42,8 +39,8 @@ jobs:
             --no-confirm-changeset \
             --on-failure DELETE \
             --no-fail-on-empty-changeset \
-            --s3-bucket ${{ env.ARTIFACT_BUCKET }} \
+            --s3-bucket ${{ vars.ARTIFACT_BUCKET }} \
             --s3-prefix ${{ github.repository }} \
-            --role-arn ${{ env.CF_ROLE_ARN }} \
+            --role-arn ${{ vars.CF_ROLE_ARN }} \
             --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND \
             --stack-name "app-gha-aws-sam-poc"
