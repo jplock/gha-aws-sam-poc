@@ -51,11 +51,6 @@ Resources:
     Properties:
       LogGroupName: !Sub "/aws/lambda/${Function}"
       RetentionInDays: 3
-      Tags:
-        - Key: "github:org"
-          Value: !Ref GitHubOrg
-        - Key: "github:repo"
-          Value: !Ref GitHubRepo
 
   FunctionRole:
     Type: "AWS::IAM::Role"
