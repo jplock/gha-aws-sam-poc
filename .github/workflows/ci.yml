@@ -57,7 +57,7 @@ jobs:
             --on-failure DELETE \
             --no-fail-on-empty-changeset \
             --no-progressbar \
-            --parameter-overrides "GitHubOrg=${{ github.repository_owner }},GitHubRepo=${{ github.repository }}" \
+            --parameter-overrides "GitHubOrg=${{ github.repository_owner }} GitHubRepo=${{ github.repository }}" \
             --role-arn ${{ vars.CF_ROLE_ARN }} \
             --stack-name "app-gha-aws-sam-poc" \
             --s3-bucket ${{ vars.ARTIFACT_BUCKET }} \
