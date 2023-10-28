@@ -50,8 +50,7 @@ jobs:
             ${{ runner.os }}-build-
             ${{ runner.os }}-
 
-      - if: ${{ steps.cache-sam-build.outputs.cache-hit != 'true' }}
-        name: Run SAM build
+      - name: Run SAM build
         run: sam build --use-container --cached --parallel
 
       - name: SAM deploy
@@ -62,7 +61,7 @@ jobs:
             --on-failure DELETE \
             --no-fail-on-empty-changeset \
             --no-progressbar \
-            --parameter-overrides "GitHubOrg=${{ github.repository_owner }} GitHubRepo=${{ github.repository }}" \
+            --parameter-overrides "GitHubOrg=${{ github.repository_owner }} GitHubRepo=${{ github.repository }} GitSHA=${{ github.sha }}" \
             --role-arn ${{ vars.CF_ROLE_ARN }} \
             --stack-name "app-gha-aws-sam-poc" \
             --s3-bucket ${{ vars.ARTIFACT_BUCKET }} \
