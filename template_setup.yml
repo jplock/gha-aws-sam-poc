@@ -64,6 +64,9 @@ Resources:
               - "lambda:*"
               - "logs:*"
             Resource: "*"
+          - Effect: Allow
+            Action: "s3:GetObject"
+            Resource: !Sub "${ArtifactBucket.Arn}/*"
 
   GitHubRole:
     Type: "AWS::IAM::Role"
