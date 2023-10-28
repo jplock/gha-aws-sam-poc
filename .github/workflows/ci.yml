@@ -42,6 +42,7 @@ jobs:
         uses: actions/cache@704facf57e6136b1bc63b828d79edcd491f0ee84 # v3
         with:
           path: .aws-sam
+          key: cache-sam-build
 
       - name: Run SAM build
         run: sam build --use-container --cached --parallel
