@@ -28,6 +28,7 @@ Globals:
     Layers:
       # @see https://docs.powertools.aws.dev/lambda/python/latest/#lambda-layer
       - !Sub "arn:${AWS::Partition}:lambda:${AWS::Region}:017000801446:layer:AWSLambdaPowertoolsPythonV2:46"
+      - !Ref DependencyLayer
     MemorySize: 128 # megabytes
     Runtime: python3.11
     Tags:
@@ -38,6 +39,21 @@ Globals:
     Tracing: Active
 
 Resources:
+  DependencyLayer:
+    Type: "AWS::Serverless::LayerVersion"
+    Metadata:
+      BuildMethod: python3.11
+      BuildArchitecture: x86_64 # GitHub Actions doesn't support ARM
+    Properties:
+      LicenseInfo: MIT-0
+      CompatibleArchitectures:
+        - x86_64
+      CompatibleRuntimes:
+        - python3.11
+      ContentUri: src/dependencies
+      Description: !Sub "${AWS::StackName} - Dependency Layer"
+      RetentionPolicy: Delete
+
   FunctionLogGroup:
     Type: "AWS::Logs::LogGroup"
     UpdateReplacePolicy: Delete
@@ -77,6 +93,8 @@ Resources:
           Value: !Ref GitHubOrg
         - Key: "github:repo"
           Value: !Ref GitHubRepo
+        - Key: "git:sha"
+          Value: !Ref GitSHA
 
   CloudWatchLogsPolicy:
     Type: "AWS::IAM::Policy"
