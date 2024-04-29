@@ -24,7 +24,7 @@ jobs:
         uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
 
       - name: Setup AWS SAM
-        uses: aws-actions/setup-sam@c6696d35f45207ec9622ec3235f1997c660e1ab2 # v2
+        uses: aws-actions/setup-sam@342dcc4899c07fedf41f91cbb1e6c68925a85d37 # v2
         with:
           use-installer: true
 
