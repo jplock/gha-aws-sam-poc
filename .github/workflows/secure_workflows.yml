@@ -32,4 +32,4 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b  # v4.1.4
       - name: Ensure 3rd party workflows have SHA pinned
-        uses: zgosalvez/github-actions-ensure-sha-pinned-actions@19ebcb0babbd282ae1822a0b9c28f3f1f25cea45 # v3.0.4
+        uses: zgosalvez/github-actions-ensure-sha-pinned-actions@76d1d8e0b075d7190b5d59b86da91c7bdbcc99b2 # v3.0.7
