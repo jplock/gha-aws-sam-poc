@@ -1,2 +1,2 @@
-aws-lambda-powertools[all,aws-sdk]==2.43.1
+aws-lambda-powertools[all,aws-sdk]==3.4.1
 black==24.10.0
