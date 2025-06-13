@@ -20,17 +20,18 @@ Parameters:
 Globals:
   Function:
     Architectures:
-      - x86_64 # GitHub Actions doesn't support ARM
+      - arm64
     Environment:
       Variables:
         LOG_LEVEL: info
     Handler: lambda_handler.handler
     Layers:
       # @see https://docs.powertools.aws.dev/lambda/python/latest/#lambda-layer
-      - !Sub "arn:${AWS::Partition}:lambda:${AWS::Region}:017000801446:layer:AWSLambdaPowertoolsPythonV2:46"
+      - "{{resolve:ssm:/aws/service/powertools/python/arm64/python3.13/latest}}"
       - !Ref DependencyLayer
     MemorySize: 128 # megabytes
-    Runtime: python3.11
+    PropagateTags: true
+    Runtime: python3.13
     Tags:
       "github:org": !Ref GitHubOrg
       "github:repo": !Ref GitHubRepo
@@ -42,14 +43,14 @@ Resources:
   DependencyLayer:
     Type: "AWS::Serverless::LayerVersion"
     Metadata:
-      BuildMethod: python3.11
-      BuildArchitecture: x86_64 # GitHub Actions doesn't support ARM
+      BuildMethod: python3.13
+      BuildArchitecture: arm64
     Properties:
       LicenseInfo: MIT-0
       CompatibleArchitectures:
-        - x86_64
+        - arm64
       CompatibleRuntimes:
-        - python3.11
+        - python3.13
       ContentUri: src/dependencies
       Description: !Sub "${AWS::StackName} - Dependency Layer"
       RetentionPolicy: Delete
